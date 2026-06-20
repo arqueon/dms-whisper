@@ -1,92 +1,92 @@
 # Dank Material Shell (DMS) Whisper Plugin
 
-Un plugin para [Dank Material Shell](https://github.com/AvengeMedia/DankMaterialShell) que integra el poder de transcripción de IA de **Whisper** directamente en tu barra de tareas.
+A [Dank Material Shell](https://github.com/AvengeMedia/DankMaterialShell) plugin that brings the power of **Whisper** AI transcription directly to your status bar.
 
-Te permite grabar notas de voz con un clic (o mediante atajos de teclado IPC), transcribe el audio en segundo plano usando Whisper, copia el texto resultante a tu portapapeles y guarda un respaldo tanto del audio como de la nota de texto.
+Record voice notes with a single click (or via IPC keybinds), have them transcribed in the background using Whisper, copied automatically to your clipboard, and cleanly backed up locally (both the audio and the generated text).
 
-## Características
+## Features
 
-- **Diseño Minimalista**: Un ícono de micrófono (`mic_none`) que se torna de color rojo (`mic`) al grabar, mezclándose perfectamente con el tema de DMS.
-- **Flujo de Trabajo Silencioso**: Te avisa del inicio de grabación y el éxito de transcripción mediante notificaciones nativas de sistema.
-- **Control por IPC**: Puede integrarse fácilmente en tu gestor de ventanas (Hyprland, Niri, Sway, etc.) mediante atajos de teclado.
-- **Historial Organizado**: Crea archivos de audio y texto separados con marcas de tiempo exactas, y mantiene un *log* cronológico centralizado.
+- **Minimalist Design**: A discreet microphone icon (`mic_none`) that turns red (`mic`) when recording, seamlessly integrating with your DMS theme.
+- **Silent Workflow**: Notifies you of recording start and successful transcription using native system notifications.
+- **IPC Controlled**: Easily integrate it into your window manager (Hyprland, Niri, Sway, etc.) via global keybinds.
+- **Organized History**: Saves separate timestamped audio and text files, and maintains a centralized chronological markdown log.
 
 ---
 
-## Requisitos y Dependencias
+## Requirements and Dependencies
 
-Antes de instalar el plugin, necesitas asegurarte de tener en el sistema las utilidades de grabación, manejo de portapapeles y el propio motor de Whisper.
+Before installing the plugin, ensure you have the necessary recording utilities, clipboard managers, and the Whisper engine installed on your system.
 
-En distribuciones basadas en **Arch Linux** (como CachyOS, EndeavourOS, etc):
+On **Arch Linux** based distributions (CachyOS, EndeavourOS, etc.):
 
-1. **Instalar utilidades del sistema:**
+1. **Install system utilities:**
    ```bash
    sudo pacman -S alsa-utils wl-clipboard
    ```
-   *(Nota: `alsa-utils` incluye la herramienta `arecord`, y `wl-clipboard` incluye `wl-copy`)*
+   *(Note: `alsa-utils` provides the `arecord` tool, and `wl-clipboard` provides `wl-copy`)*
 
-2. **Instalar Whisper (OpenAI):**
-   La forma más limpia es mediante `pipx` para que el ejecutable `whisper` esté disponible globalmente de manera aislada sin entrar en conflictos de dependencias en el sistema:
+2. **Install Whisper (OpenAI):**
+   The cleanest method is using `pipx` to make the `whisper` executable available globally without creating package conflicts:
    ```bash
    sudo pacman -S python-pipx
    pipx install openai-whisper
    ```
-   *(Asegúrate de que `~/.local/bin` esté en tu variable de entorno `$PATH`)*
+   *(Make sure `~/.local/bin` is in your `$PATH` environment variable)*
 
 ---
 
-## Instalación del Plugin
+## Plugin Installation
 
-1. Clona este repositorio dentro de la carpeta de plugins de tu configuración local de Dank Material Shell:
+1. Clone this repository into your local Dank Material Shell plugins folder:
    ```bash
    git clone https://github.com/arqueon/dms-whisper.git ~/.config/DankMaterialShell/plugins/dms-whisper
    ```
    
-2. Otorga permisos de ejecución al script principal:
+2. Make the main script executable:
    ```bash
    chmod +x ~/.config/DankMaterialShell/plugins/dms-whisper/whisper-action.sh
    ```
 
-3. Abre las preferencias de Dank Material Shell (usualmente presionando `Mod + ,`), ve a la pestaña **Plugins**, haz clic en el botón de **Scan** y habilita el plugin llamado **DMS Whisper**.
+3. Open Dank Material Shell settings (usually by pressing `Mod + ,`), go to the **Plugins** tab, click the **Scan** button, and enable the plugin named **DMS Whisper**.
 
-4. Para que el plugin y su componente IPC carguen por primera vez de forma íntegra, reinicia el entorno DMS:
+4. To fully load the plugin and its IPC handler for the first time, restart your DMS environment:
    ```bash
    dms restart
    ```
 
 ---
 
-## Uso
+## Usage
 
-### Desde la Interfaz Gráfica (Dankbar)
-Simplemente haz clic izquierdo en el icono de micrófono ubicado en tu panel superior o vertical. El icono cambiará y se pintará de rojo para indicar que la grabación está activa. Vuelve a hacer clic para detener la captura y dar paso a la transcripción automática.
+### Via Graphical Interface (Dankbar)
+Simply left-click the microphone icon located on your top or vertical panel. The icon will change to red to indicate that recording is active. Click it again to stop capturing audio and start the automatic transcription.
 
-### Mediante Comandos IPC (Atajos de teclado)
-El plugin registra un comando en el bus IPC de Dank Material Shell que te permite alternar el estado (empezar/detener) sin depender de clics. 
+### Via IPC Commands (Keybinds)
+The plugin registers a command in the Dank Material Shell IPC bus that allows you to toggle the recording state without relying on mouse clicks.
 
-Puedes configurar este comando en el archivo de tu compositor (por ejemplo, en `hyprland.conf`):
+You can bind this command in your compositor's configuration file (e.g., in `hyprland.conf`):
 
 ```bash
-# Asignar a la combinación de teclas SUPER + W
+# Bind to SUPER + W
 bind = SUPER, W, exec, dms ipc whisper toggle
 ```
 
-### ¿Dónde se guardan mis notas y audios?
-El plugin ha sido configurado para organizar automáticamente todo en tu carpeta de Documentos:
-- **Directorio base:** `~/Documents/Whisper/`
-- **Audio original guardado:** `Whisper_YYYY-MM-DD_HH-MM-SS.wav`
-- **Texto crudo extraído:** `Whisper_YYYY-MM-DD_HH-MM-SS.txt`
-- **Registro Global (El Log):** `WhisperNotes.md`. Este es un archivo vivo en donde se van agregando todas tus transcripciones secuencialmente en formato *bullet-points* con fecha y hora.
+### Where are my notes and audio files saved?
+The plugin automatically organizes everything in your Documents folder:
+- **Base Directory:** `~/Documents/Whisper/`
+- **Original Audio:** `Whisper_YYYY-MM-DD_HH-MM-SS.wav`
+- **Raw Extracted Text:** `Whisper_YYYY-MM-DD_HH-MM-SS.txt`
+- **Global Record (The Log):** `WhisperNotes.md`. This is a living document where all your transcriptions are sequentially appended as bullet points with their exact date and time.
 
 ---
 
-## Personalización Avanzada
-Si deseas cambiar el modelo por defecto (el plugin utiliza el modelo `base` adaptado a idioma español) o su ruta de guardado, puedes editar las siguientes variables abriendo el archivo `whisper-action.sh`:
+## Advanced Customization
+If you wish to change the default model, specify a strict language, or change the save path, you can edit the following variables by opening the `whisper-action.sh` file:
 
 ```bash
 OUT_DIR="$HOME/Documents/Whisper"
 # ...
-whisper "$AUDIO_FILE" --model base --language es --output_format txt --output_dir "$OUT_DIR" >/dev/null 2>&1
+whisper "$AUDIO_FILE" --model base --output_format txt --output_dir "$OUT_DIR" >/dev/null 2>&1
 ```
 
-*(Los modelos disponibles en OpenAI Whisper por orden de precisión/peso son: `tiny`, `base`, `small`, `medium`, `large`)*
+*(By default, Whisper will auto-detect the spoken language. The available models in OpenAI Whisper, ordered by precision and weight, are: `tiny`, `base`, `small`, `medium`, `large`)*

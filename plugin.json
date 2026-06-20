@@ -1,7 +1,7 @@
 {
     "id": "dmsWhisper",
     "name": "DMS Whisper",
-    "description": "Active Whisper para reconocimiento de voz. Copia al portapapeles y guarda un respaldo.",
+    "description": "Voice recognition using Whisper. Copies to clipboard and saves a local backup.",
     "version": "1.0.0",
     "author": "arqueon",
     "type": "widget",

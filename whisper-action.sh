@@ -20,7 +20,7 @@ start_recording() {
     # Record audio 16kHz, mono
     arecord -f S16_LE -c 1 -r 16000 "$AUDIO_FILE" -q &
     echo $! > "$PID_FILE"
-    notify-send "Whisper" "Grabando: Whisper_$TIMESTAMP.wav" -i audio-input-microphone
+    notify-send "Whisper" "Recording: Whisper_$TIMESTAMP.wav" -i audio-input-microphone
 }
 
 stop_recording() {
@@ -29,7 +29,7 @@ stop_recording() {
     fi
     kill $(cat "$PID_FILE")
     rm "$PID_FILE"
-    notify-send "Whisper" "Transcribiendo..." -i audio-input-microphone
+    notify-send "Whisper" "Transcribing..." -i audio-input-microphone
     
     if [ ! -f "$CURRENT_FILE_TRACKER" ]; then
         return
@@ -39,7 +39,7 @@ stop_recording() {
     rm "$CURRENT_FILE_TRACKER"
     
     # Run whisper
-    whisper "$AUDIO_FILE" --model base --language es --output_format txt --output_dir "$OUT_DIR" >/dev/null 2>&1
+    whisper "$AUDIO_FILE" --model base --output_format txt --output_dir "$OUT_DIR" >/dev/null 2>&1
     
     BASE_NAME=$(basename "$AUDIO_FILE" .wav)
     TXT_FILE="$OUT_DIR/$BASE_NAME.txt"
@@ -51,7 +51,7 @@ stop_recording() {
         echo "- **$(date '+%Y-%m-%d %H:%M:%S')** [$BASE_NAME.wav]: $TEXT" >> "$LOG_FILE"
         notify-send "Whisper" "$TEXT" -i edit-paste
     else
-        notify-send "Whisper" "No se detectó voz o hubo un error." -i dialog-error
+        notify-send "Whisper" "No voice detected or an error occurred." -i dialog-error
     fi
 }
 
