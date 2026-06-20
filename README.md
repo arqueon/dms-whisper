@@ -47,7 +47,7 @@ En distribuciones basadas en **Arch Linux** (como CachyOS, EndeavourOS, etc):
    chmod +x ~/.config/DankMaterialShell/plugins/dms-whisper/whisper-action.sh
    ```
 
-3. Abre las preferencias de Dank Material Shell (usualmente presionando `Mod + ,`), ve a la pestaña **Plugins**, haz clic en el botón de **Scan** y habilita el plugin llamado **Whisper Voice Rec.**
+3. Abre las preferencias de Dank Material Shell (usualmente presionando `Mod + ,`), ve a la pestaña **Plugins**, haz clic en el botón de **Scan** y habilita el plugin llamado **DMS Whisper**.
 
 4. Para que el plugin y su componente IPC carguen por primera vez de forma íntegra, reinicia el entorno DMS:
    ```bash
