@@ -88,11 +88,20 @@ Simply left-click the microphone icon located on your top or vertical panel. The
 ### Via IPC Commands (Keybinds)
 The plugin registers a command in the Dank Material Shell IPC bus that allows you to toggle the recording state without relying on mouse clicks.
 
-You can bind this command in your compositor's configuration file (e.g., in `hyprland.conf`):
+You can bind this command in your compositor's configuration file:
 
+**Hyprland** (`hyprland.conf`):
 ```bash
 # Bind to SUPER + W
 bind = SUPER, W, exec, dms ipc whisper toggle
+```
+
+**Niri** (`config.kdl`):
+```kdl
+// Bind to Mod + W
+binds {
+    Mod+W { spawn "dms" "ipc" "whisper" "toggle"; }
+}
 ```
 
 ### Where are my notes and audio files saved?
