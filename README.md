@@ -7,7 +7,7 @@ Graba audio del micrófono, lo transcribe mediante Whisper, copia el resultado a
 
 1. Clona este repositorio en la carpeta de plugins de DMS:
    ```bash
-   git clone https://github.com/TU_USUARIO/dms-whisper.git ~/.config/DankMaterialShell/plugins/dms-whisper
+   git clone https://github.com/arqueon/dms-whisper.git ~/.config/DankMaterialShell/plugins/dms-whisper
    ```
 2. Asegúrate de que las dependencias estén instaladas:
    - `arecord` (para grabación de audio)
