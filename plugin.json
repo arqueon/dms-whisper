@@ -1,0 +1,15 @@
+{
+    "id": "dmsWhisper",
+    "name": "Whisper Voice Rec.",
+    "description": "Active Whisper para reconocimiento de voz. Copia al portapapeles y guarda un respaldo.",
+    "version": "1.0.0",
+    "author": "ruben",
+    "type": "widget",
+    "component": "./WhisperWidget.qml",
+    "icon": "mic",
+    "capabilities": [
+        "dankbar-widget",
+        "ipc"
+    ],
+    "permissions": []
+}

@@ -1,0 +1,8 @@
+# Ignore /tmp files just in case
+*.pid
+*.wav
+
+# Editor files
+.vscode/
+.idea/
+*.swp
