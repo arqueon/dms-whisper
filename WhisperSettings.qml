@@ -7,7 +7,7 @@ import qs.Widgets
 
 PluginSettings {
     id: root
-    pluginId: "dmsWhisper"
+    pluginId: "dms-whisper"
 
     StyledText {
         width: parent.width
