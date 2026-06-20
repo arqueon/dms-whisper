@@ -28,7 +28,12 @@ PluginComponent {
     }
 
     function toggleRecording() {
-        Quickshell.execDetached(["/bin/sh", scriptPath, "toggle"]);
+        const model = pluginData.whisperModel || "base";
+        const dir = pluginData.outputDirectory || (homeDir + "/Documents/Whisper");
+        const lang = pluginData.language || "auto";
+        const translate = pluginData.translateToEnglish ? "yes" : "no";
+
+        Quickshell.execDetached(["/bin/sh", scriptPath, "toggle", model, dir, lang, translate]);
         Qt.callLater(() => {
             recordingCheckTimer.start();
         });

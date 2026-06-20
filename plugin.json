@@ -6,6 +6,7 @@
     "author": "arqueon",
     "type": "widget",
     "component": "./WhisperWidget.qml",
+    "settings": "./WhisperSettings.qml",
     "icon": "mic",
     "capabilities": [
         "dankbar-widget",
