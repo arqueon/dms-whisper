@@ -56,7 +56,7 @@ PluginComponent {
             DankIcon {
                 name: root.isRecording ? "mic" : "mic_none"
                 color: root.isRecording ? Theme.errorText : Theme.surfaceText
-                pixelSize: Theme.fontSizeLarge
+                size: Theme.fontSizeLarge
                 anchors.verticalCenter: parent.verticalCenter
             }
 
