@@ -67,10 +67,10 @@ PluginComponent {
             Image {
                 id: volutaIcon
                 source: svgData
-                sourceSize.width: Theme.iconSizeSmall * 3
-                sourceSize.height: Theme.iconSizeSmall * 3
-                width: Theme.iconSizeSmall
-                height: Theme.iconSizeSmall
+                sourceSize.width: Theme.iconSize * 3
+                sourceSize.height: Theme.iconSize * 3
+                width: Theme.iconSize
+                height: Theme.iconSize
                 anchors.centerIn: parent
                 smooth: true
                 antialiasing: true
