@@ -50,23 +50,22 @@ PluginComponent {
 
     Component {
         id: widgetContent
-        Row {
-            spacing: Theme.spacingS
+        Item {
+            implicitWidth: icon.implicitWidth
+            implicitHeight: Theme.iconSize
+            anchors.verticalCenter: parent ? parent.verticalCenter : undefined
 
             DankIcon {
+                id: icon
                 name: root.isRecording ? "mic" : "mic_none"
                 color: root.isRecording ? Theme.errorText : Theme.surfaceText
-                size: Theme.fontSizeLarge
-                anchors.verticalCenter: parent.verticalCenter
-            }
-
-            MouseArea {
-                anchors.fill: parent
-                onClicked: root.toggleRecording()
-                cursorShape: Qt.PointingHandCursor
+                size: Theme.iconSizeSmall
+                anchors.centerIn: parent
             }
         }
     }
+
+    pillClickAction: function() { root.toggleRecording(); }
 
     horizontalBarPill: widgetContent
     verticalBarPill: widgetContent
