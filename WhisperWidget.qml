@@ -55,22 +55,18 @@ PluginComponent {
             implicitHeight: Theme.iconSize
             anchors.verticalCenter: parent ? parent.verticalCenter : undefined
 
-            property string iconColor: root.isRecording ? Theme.errorText.toString() : Theme.surfaceText.toString()
-            property string encodedColor: iconColor.replace("#", "%23")
-            property string svgData: "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='" + encodedColor + "' stroke-width='2' stroke-linecap='round'><path d='M 4 21 C 4 12 10 4 14 4 A 7 7 0 1 1 14 18 A 5 5 0 1 1 14 8 A 3 3 0 1 1 14 14 A 1 1 0 1 1 14 12'/></svg>"
-
             Image {
                 id: volutaIcon
-                source: svgData
-                sourceSize.width: Theme.iconSizeSmall * 2
-                sourceSize.height: Theme.iconSizeSmall * 2
+                source: "file://" + root.homeDir + "/Projects/dms-whisper/tlahtolli.svg"
+                sourceSize.width: Theme.iconSizeSmall * 3
+                sourceSize.height: Theme.iconSizeSmall * 3
                 width: Theme.iconSizeSmall
                 height: Theme.iconSizeSmall
                 anchors.centerIn: parent
                 smooth: true
                 antialiasing: true
 
-                scale: root.isRecording ? 1.15 : 1.0
+                scale: root.isRecording ? 1.2 : 1.0
                 Behavior on scale { NumberAnimation { duration: 300; easing.type: Easing.OutBack } }
 
                 SequentialAnimation on opacity {
