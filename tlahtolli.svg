@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
 <svg xmlns="http://www.w3.org/2000/svg" fill-rule="evenodd" preserveAspectRatio="xMidYMid" viewBox="0 0 23000 16000">
-  <g fill="teal">
+  <g fill="teal" stroke="teal" stroke-width="600" stroke-linejoin="round" stroke-linecap="round">
     <path d="M7794 8980c363 0 685-31 972-89l98 491 98 490c-344 69-732 108-1168 108V8980Z"/>
     <path d="M8766 8891c271-54 509-132 716-228l212 453 211 453c-273 127-585 231-943 303l-98-490-98-491Z"/>
     <path d="M9482 8663c197-92 366-201 510-322l322 383 321 383c-206 173-447 330-730 462l-211-453-212-453Z"/>
