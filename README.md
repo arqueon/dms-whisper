@@ -17,21 +17,45 @@ Record voice notes with a single click (or via IPC keybinds), have them transcri
 
 Before installing the plugin, ensure you have the necessary recording utilities, clipboard managers, and the Whisper engine installed on your system.
 
-On **Arch Linux** based distributions (CachyOS, EndeavourOS, etc.):
+### Arch Linux (CachyOS, EndeavourOS, etc.)
 
 1. **Install system utilities:**
    ```bash
    sudo pacman -S alsa-utils wl-clipboard
    ```
-   *(Note: `alsa-utils` provides the `arecord` tool, and `wl-clipboard` provides `wl-copy`)*
 
 2. **Install Whisper (OpenAI):**
-   The cleanest method is using `pipx` to make the `whisper` executable available globally without creating package conflicts:
    ```bash
    sudo pacman -S python-pipx
    pipx install openai-whisper
    ```
-   *(Make sure `~/.local/bin` is in your `$PATH` environment variable)*
+
+### Ubuntu / Debian
+
+1. **Install system utilities and pipx:**
+   ```bash
+   sudo apt update
+   sudo apt install alsa-utils wl-clipboard pipx
+   ```
+
+2. **Install Whisper (OpenAI):**
+   ```bash
+   pipx install openai-whisper
+   ```
+
+### Fedora
+
+1. **Install system utilities and pipx:**
+   ```bash
+   sudo dnf install alsa-utils wl-clipboard pipx
+   ```
+
+2. **Install Whisper (OpenAI):**
+   ```bash
+   pipx install openai-whisper
+   ```
+
+*(Note: `alsa-utils` provides the `arecord` tool, and `wl-clipboard` provides `wl-copy`. Make sure `~/.local/bin` is in your `$PATH` environment variable so the `whisper` command is recognized after installing via pipx).*
 
 ---
 
