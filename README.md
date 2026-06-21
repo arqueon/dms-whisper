@@ -6,7 +6,7 @@ Record voice notes with a single click (or via IPC keybinds), have them transcri
 
 ## Features
 
-- **Minimalist Design**: A discreet microphone icon (`mic_none`) that turns red (`mic`) when recording, seamlessly integrating with your DMS theme.
+- **Minimalist Design**: A teal pre-Hispanic conch icon that blinks and highlights when recording, seamlessly integrating with your DMS theme.
 - **Silent Workflow**: Notifies you of recording start and successful transcription using native system notifications.
 - **IPC Controlled**: Easily integrate it into your window manager (Hyprland, Niri, Sway, etc.) via global keybinds.
 - **Organized History**: Saves separate timestamped audio and text files, and maintains a centralized chronological markdown log.
@@ -104,7 +104,7 @@ Before installing the plugin, ensure you have the necessary recording utilities,
 ## Usage
 
 ### Via Graphical Interface (Dankbar)
-Simply left-click the microphone icon located on your top or vertical panel. The icon will change to red to indicate that recording is active. Click it again to stop capturing audio and start the automatic transcription.
+Simply left-click the pre-Hispanic conch icon located on your top or vertical panel. The icon will blink and highlight to indicate that recording is active. Click it again to stop capturing audio and start the automatic transcription.
 
 ### Via IPC Commands (Keybinds)
 The plugin registers a command in the Dank Material Shell IPC bus that allows you to toggle the recording state without relying on mouse clicks.
