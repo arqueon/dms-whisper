@@ -7,7 +7,7 @@ import qs.Widgets
 
 PluginSettings {
     id: root
-    pluginId: "dms-whisper"
+    pluginId: "dmsWhisper"
 
     StyledText {
         width: parent.width
@@ -20,7 +20,7 @@ PluginSettings {
     StyledText {
         width: parent.width
         wrapMode: Text.WordWrap
-        text: "Configure the backend behavior for OpenAI Whisper transcription."
+        text: "Configure the backend behavior for Whisper transcription."
         font.pixelSize: Theme.fontSizeSmall
         color: Theme.surfaceVariantText
     }
@@ -29,6 +29,17 @@ PluginSettings {
         width: parent.width
         height: 1
         color: Theme.surfaceVariant
+    }
+
+    SelectionSetting {
+        settingKey: "whisperBackend"
+        label: "Whisper Backend"
+        options: [
+            {label: "OpenAI Whisper CLI", value: "openai-whisper"},
+            {label: "faster-whisper", value: "faster-whisper"},
+            {label: "whisper.cpp", value: "whisper-cpp"}
+        ]
+        defaultValue: pluginData.whisperBackend || "openai-whisper"
     }
 
     SelectionSetting {
@@ -69,6 +80,50 @@ PluginSettings {
         defaultValue: pluginData.translateToEnglish === true
     }
 
+    StringSetting {
+        settingKey: "initialPrompt"
+        label: "Initial Prompt"
+        description: "Optional context for names, acronyms, technical terms, or preferred spelling."
+        placeholder: "Example: Spanish from Mexico. Names: UdeG, DMS, Quickshell."
+        defaultValue: pluginData.initialPrompt || ""
+    }
+
+    StyledText {
+        text: "Backend Commands"
+        font.pixelSize: Theme.fontSizeMedium
+        font.weight: Font.DemiBold
+        color: Theme.surfaceText
+    }
+
+    StringSetting {
+        settingKey: "openaiWhisperCommand"
+        label: "OpenAI Whisper Command"
+        description: "Command used by the OpenAI Whisper backend."
+        defaultValue: pluginData.openaiWhisperCommand || "whisper"
+    }
+
+    StringSetting {
+        settingKey: "fasterWhisperCommand"
+        label: "faster-whisper Command"
+        description: "Command used by the faster-whisper backend."
+        defaultValue: pluginData.fasterWhisperCommand || "faster-whisper"
+    }
+
+    StringSetting {
+        settingKey: "whisperCppCommand"
+        label: "whisper.cpp Command"
+        description: "Command used by the whisper.cpp backend, usually whisper-cli."
+        defaultValue: pluginData.whisperCppCommand || "whisper-cli"
+    }
+
+    StringSetting {
+        settingKey: "whisperCppModelPath"
+        label: "whisper.cpp Model Path"
+        description: "Path to a whisper.cpp GGML/GGUF model file."
+        placeholder: "/path/to/ggml-base.bin"
+        defaultValue: pluginData.whisperCppModelPath || ""
+    }
+
     StyledRect {
         width: parent.width
         height: 1
@@ -105,7 +160,7 @@ PluginSettings {
             
             StyledText {
                 width: parent.width
-                text: "Start or stop recording. Useful for binding to a hotkey in Hyprland or Sway."
+                text: "Start or stop recording. Useful for binding to a hotkey in Hyprland, Niri, or Sway."
                 font.pixelSize: Theme.fontSizeSmall
                 color: Theme.surfaceVariantText
                 wrapMode: Text.WrapAnywhere

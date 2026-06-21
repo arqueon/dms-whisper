@@ -24,10 +24,17 @@ Before installing the plugin, ensure you have the necessary recording utilities,
    sudo pacman -S alsa-utils wl-clipboard
    ```
 
-2. **Install Whisper (OpenAI):**
+2. **Install a Whisper backend:**
    ```bash
+   # OpenAI Whisper CLI
    sudo pacman -S python-pipx
    pipx install openai-whisper
+
+   # Optional: faster-whisper-compatible CLI
+   pipx install faster-whisper
+
+   # Optional: whisper.cpp CLI
+   sudo pacman -S whisper.cpp
    ```
 
 ### Ubuntu / Debian
@@ -38,9 +45,16 @@ Before installing the plugin, ensure you have the necessary recording utilities,
    sudo apt install alsa-utils wl-clipboard pipx
    ```
 
-2. **Install Whisper (OpenAI):**
+2. **Install a Whisper backend:**
    ```bash
+   # OpenAI Whisper CLI
    pipx install openai-whisper
+
+   # Optional: faster-whisper-compatible CLI
+   pipx install faster-whisper
+
+   # Optional: whisper.cpp CLI
+   # Install from your distro packages or build from https://github.com/ggerganov/whisper.cpp
    ```
 
 ### Fedora
@@ -50,12 +64,19 @@ Before installing the plugin, ensure you have the necessary recording utilities,
    sudo dnf install alsa-utils wl-clipboard pipx
    ```
 
-2. **Install Whisper (OpenAI):**
+2. **Install a Whisper backend:**
    ```bash
+   # OpenAI Whisper CLI
    pipx install openai-whisper
+
+   # Optional: faster-whisper-compatible CLI
+   pipx install faster-whisper
+
+   # Optional: whisper.cpp CLI
+   sudo dnf install whisper.cpp
    ```
 
-*(Note: `alsa-utils` provides the `arecord` tool, and `wl-clipboard` provides `wl-copy`. Make sure `~/.local/bin` is in your `$PATH` environment variable so the `whisper` command is recognized after installing via pipx).*
+*(Note: `alsa-utils` provides the `arecord` tool, and `wl-clipboard` provides `wl-copy`. Make sure `~/.local/bin` is in your `$PATH` environment variable so CLI backends installed via pipx are recognized. For `whisper.cpp`, set the command and model path in plugin settings.)*
 
 ---
 
@@ -114,12 +135,11 @@ The plugin automatically organizes everything in your Documents folder:
 ---
 
 ## Advanced Customization
-If you wish to change the default model, specify a strict language, or change the save path, you can edit the following variables by opening the `whisper-action.sh` file:
+Use the DMS plugin settings to change the Whisper backend, model, output directory, language, prompt context, or translation behavior.
 
-```bash
-OUT_DIR="$HOME/Documents/Whisper"
-# ...
-whisper "$AUDIO_FILE" --model base --output_format txt --output_dir "$OUT_DIR" >/dev/null 2>&1
-```
+The plugin supports three backend choices:
+- `openai-whisper`: default `whisper` command.
+- `faster-whisper`: default `faster-whisper` command. If your package exposes a different CLI name, change it in settings.
+- `whisper.cpp`: default `whisper-cli` command, plus a required local model path. If your build exposes `main` or another binary name, change it in settings.
 
-*(By default, Whisper will auto-detect the spoken language. The available models in OpenAI Whisper, ordered by precision and weight, are: `tiny`, `base`, `small`, `medium`, `large`)*
+By default, Whisper auto-detects the spoken language. Common model sizes, ordered by precision and weight, are: `tiny`, `base`, `small`, `medium`, `large`.

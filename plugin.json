@@ -12,5 +12,9 @@
         "dankbar-widget",
         "ipc"
     ],
-    "permissions": []
+    "permissions": [
+        "settings_read",
+        "settings_write",
+        "process"
+    ]
 }

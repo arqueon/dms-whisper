@@ -1,73 +1,221 @@
 #!/bin/bash
-PID_FILE="/tmp/dms-whisper-record.pid"
-CURRENT_FILE_TRACKER="/tmp/dms-whisper-current.txt"
+
+RUNTIME_DIR="${XDG_RUNTIME_DIR:-/tmp}/dms-whisper"
+PID_FILE="$RUNTIME_DIR/record.pid"
+CURRENT_FILE_TRACKER="$RUNTIME_DIR/current.env"
 
 ACTION="$1"
-MODEL="${2:-base}"
-OUT_DIR="${3:-$HOME/Documents/Whisper}"
-LANGUAGE="${4:-auto}"
-TRANSLATE="${5:-no}"
+BACKEND="${2:-openai-whisper}"
+MODEL="${3:-base}"
+OUT_DIR="${4:-$HOME/Documents/Whisper}"
+LANGUAGE="${5:-auto}"
+TRANSLATE="${6:-no}"
+INITIAL_PROMPT="${7:-}"
+OPENAI_WHISPER_COMMAND="${8:-whisper}"
+FASTER_WHISPER_COMMAND="${9:-faster-whisper}"
+WHISPER_CPP_COMMAND="${10:-whisper-cli}"
+WHISPER_CPP_MODEL_PATH="${11:-}"
+
+notify() {
+    if command -v notify-send >/dev/null 2>&1; then
+        notify-send "$@"
+    fi
+}
+
+require_command() {
+    if ! command -v "$1" >/dev/null 2>&1; then
+        notify "Whisper" "Missing dependency: $1" -i dialog-error
+        exit 1
+    fi
+}
+
+is_recording() {
+    local pid
+
+    [ -f "$PID_FILE" ] || return 1
+    pid=$(cat "$PID_FILE" 2>/dev/null) || return 1
+    [ -n "$pid" ] || return 1
+    kill -0 "$pid" 2>/dev/null
+}
+
+cleanup_state() {
+    rm -f "$PID_FILE" "$CURRENT_FILE_TRACKER"
+}
+
+append_common_cli_options() {
+    if [ "$LANGUAGE" != "auto" ]; then
+        cmd+=(--language "$LANGUAGE")
+    fi
+
+    if [ "$TRANSLATE" = "yes" ]; then
+        cmd+=(--task translate)
+    fi
+
+    if [ -n "$INITIAL_PROMPT" ]; then
+        cmd+=(--initial_prompt "$INITIAL_PROMPT")
+    fi
+}
+
+build_transcription_command() {
+    local output_prefix
+
+    case "$BACKEND" in
+        openai-whisper)
+            require_command "$OPENAI_WHISPER_COMMAND"
+            cmd=("$OPENAI_WHISPER_COMMAND" "$AUDIO_FILE" --model "$MODEL" --output_format txt --output_dir "$OUT_DIR")
+            append_common_cli_options
+            TXT_FILE="$OUT_DIR/$BASE_NAME.txt"
+            ;;
+        faster-whisper)
+            require_command "$FASTER_WHISPER_COMMAND"
+            cmd=("$FASTER_WHISPER_COMMAND" "$AUDIO_FILE" --model "$MODEL" --output_format txt --output_dir "$OUT_DIR")
+            append_common_cli_options
+            TXT_FILE="$OUT_DIR/$BASE_NAME.txt"
+            ;;
+        whisper-cpp)
+            require_command "$WHISPER_CPP_COMMAND"
+
+            if [ -z "$WHISPER_CPP_MODEL_PATH" ]; then
+                notify "Whisper" "whisper.cpp model path is required." -i dialog-error
+                return 1
+            fi
+
+            if [ ! -f "$WHISPER_CPP_MODEL_PATH" ]; then
+                notify "Whisper" "whisper.cpp model file was not found." -i dialog-error
+                return 1
+            fi
+
+            output_prefix="$OUT_DIR/$BASE_NAME"
+            cmd=("$WHISPER_CPP_COMMAND" -m "$WHISPER_CPP_MODEL_PATH" -f "$AUDIO_FILE" -otxt -of "$output_prefix")
+
+            if [ "$LANGUAGE" != "auto" ]; then
+                cmd+=(-l "$LANGUAGE")
+            fi
+
+            if [ "$TRANSLATE" = "yes" ]; then
+                cmd+=(-tr)
+            fi
+
+            if [ -n "$INITIAL_PROMPT" ]; then
+                cmd+=(--prompt "$INITIAL_PROMPT")
+            fi
+
+            TXT_FILE="$output_prefix.txt"
+            ;;
+        *)
+            notify "Whisper" "Unsupported backend: $BACKEND" -i dialog-error
+            return 1
+            ;;
+    esac
+}
 
 start_recording() {
-    if [ -f "$PID_FILE" ]; then
+    mkdir -p "$RUNTIME_DIR"
+
+    if is_recording; then
+        notify "Whisper" "Recording is already active." -i audio-input-microphone
         return
     fi
-    
+
+    cleanup_state
+    require_command arecord
     mkdir -p "$OUT_DIR"
-    
+
     TIMESTAMP=$(date '+%Y-%m-%d_%H-%M-%S')
     AUDIO_FILE="$OUT_DIR/Whisper_$TIMESTAMP.wav"
-    
-    echo "$AUDIO_FILE|$MODEL|$OUT_DIR|$LANGUAGE|$TRANSLATE" > "$CURRENT_FILE_TRACKER"
-    
+
+    printf '%s\0' \
+        "$AUDIO_FILE" \
+        "$BACKEND" \
+        "$MODEL" \
+        "$OUT_DIR" \
+        "$LANGUAGE" \
+        "$TRANSLATE" \
+        "$INITIAL_PROMPT" \
+        "$OPENAI_WHISPER_COMMAND" \
+        "$FASTER_WHISPER_COMMAND" \
+        "$WHISPER_CPP_COMMAND" \
+        "$WHISPER_CPP_MODEL_PATH" > "$CURRENT_FILE_TRACKER"
+
     # Record audio 16kHz, mono
     arecord -f S16_LE -c 1 -r 16000 "$AUDIO_FILE" -q &
     echo $! > "$PID_FILE"
-    notify-send "Whisper" "Recording: Whisper_$TIMESTAMP.wav" -i audio-input-microphone
+    notify "Whisper" "Recording: Whisper_$TIMESTAMP.wav" -i audio-input-microphone
 }
 
 stop_recording() {
-    if [ ! -f "$PID_FILE" ]; then
+    local pid cmd text
+    local tracker=()
+
+    if ! is_recording; then
+        cleanup_state
         return
     fi
-    kill $(cat "$PID_FILE")
-    rm "$PID_FILE"
-    notify-send "Whisper" "Transcribing..." -i audio-input-microphone
-    
+
+    pid=$(cat "$PID_FILE")
+    kill "$pid" 2>/dev/null || true
+    for _ in {1..20}; do
+        kill -0 "$pid" 2>/dev/null || break
+        sleep 0.1
+    done
+    if kill -0 "$pid" 2>/dev/null; then
+        kill -KILL "$pid" 2>/dev/null || true
+    fi
+    rm -f "$PID_FILE"
+    notify "Whisper" "Transcribing..." -i audio-input-microphone
+
     if [ ! -f "$CURRENT_FILE_TRACKER" ]; then
+        notify "Whisper" "Recording metadata was not found." -i dialog-error
         return
     fi
-    
-    TRACKER_DATA=$(cat "$CURRENT_FILE_TRACKER")
-    rm "$CURRENT_FILE_TRACKER"
-    
-    # Parse tracker data (format: file|model|outdir|lang|trans)
-    IFS='|' read -r AUDIO_FILE R_MODEL R_OUT_DIR R_LANG R_TRANS <<< "$TRACKER_DATA"
-    
-    CMD="whisper \"$AUDIO_FILE\" --model \"$R_MODEL\" --output_format txt --output_dir \"$R_OUT_DIR\""
-    
-    if [ "$R_LANG" != "auto" ]; then
-        CMD="$CMD --language \"$R_LANG\""
+
+    readarray -d '' -t tracker < "$CURRENT_FILE_TRACKER"
+    rm -f "$CURRENT_FILE_TRACKER"
+
+    if [ "${#tracker[@]}" -lt 11 ]; then
+        notify "Whisper" "Recording metadata is incomplete." -i dialog-error
+        return 1
     fi
-    
-    if [ "$R_TRANS" = "yes" ]; then
-        CMD="$CMD --task translate"
-    fi
-    
-    # Run whisper
-    eval "$CMD >/dev/null 2>&1"
-    
+
+    AUDIO_FILE="${tracker[0]}"
+    BACKEND="${tracker[1]}"
+    MODEL="${tracker[2]}"
+    OUT_DIR="${tracker[3]}"
+    LANGUAGE="${tracker[4]}"
+    TRANSLATE="${tracker[5]}"
+    INITIAL_PROMPT="${tracker[6]}"
+    OPENAI_WHISPER_COMMAND="${tracker[7]}"
+    FASTER_WHISPER_COMMAND="${tracker[8]}"
+    WHISPER_CPP_COMMAND="${tracker[9]}"
+    WHISPER_CPP_MODEL_PATH="${tracker[10]}"
+
+    require_command wl-copy
+
     BASE_NAME=$(basename "$AUDIO_FILE" .wav)
-    TXT_FILE="$R_OUT_DIR/$BASE_NAME.txt"
-    
-    TEXT=$(cat "$TXT_FILE" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
-    
-    if [ -n "$TEXT" ]; then
-        echo "$TEXT" | wl-copy
-        echo "- **$(date '+%Y-%m-%d %H:%M:%S')** [$BASE_NAME.wav]: $TEXT" >> "$R_OUT_DIR/WhisperNotes.md"
-        notify-send "Whisper" "$TEXT" -i edit-paste
+
+    if ! build_transcription_command; then
+        return 1
+    fi
+
+    # Run whisper
+    if ! "${cmd[@]}" >/dev/null 2>&1; then
+        notify "Whisper" "Transcription failed." -i dialog-error
+        return 1
+    fi
+
+    if [ ! -f "$TXT_FILE" ]; then
+        notify "Whisper" "Transcription output was not created." -i dialog-error
+        return 1
+    fi
+
+    text=$(sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//' "$TXT_FILE")
+
+    if [ -n "$text" ]; then
+        printf '%s\n' "$text" | wl-copy
+        printf -- '- **%s** [%s.wav, %s]: %s\n' "$(date '+%Y-%m-%d %H:%M:%S')" "$BASE_NAME" "$BACKEND" "$text" >> "$OUT_DIR/WhisperNotes.md"
+        notify "Whisper" "$text" -i edit-paste
     else
-        notify-send "Whisper" "No voice detected or an error occurred." -i dialog-error
+        notify "Whisper" "No voice detected or an error occurred." -i dialog-error
     fi
 }
 
@@ -79,10 +227,13 @@ case "$ACTION" in
         stop_recording
         ;;
     toggle)
-        if [ -f "$PID_FILE" ]; then
+        if is_recording; then
             stop_recording
         else
             start_recording
         fi
+        ;;
+    status)
+        is_recording
         ;;
 esac
