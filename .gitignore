@@ -1,8 +1,18 @@
-# Ignore /tmp files just in case
+# Runtime and recording artifacts
 *.pid
+*.env
+*.log
 *.wav
+Whisper_*.txt
+WhisperNotes.md
+dms-whisper/
 
 # Editor files
 .vscode/
 .idea/
 *.swp
+*~
+
+# Local OS metadata
+.DS_Store
+Thumbs.db

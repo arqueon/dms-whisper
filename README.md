@@ -31,10 +31,10 @@ Before installing the plugin, ensure you have the necessary recording utilities,
    pipx install openai-whisper
 
    # Optional: faster-whisper-compatible CLI
-   pipx install faster-whisper
+   pipx install whisper-ctranslate2
 
-   # Optional: whisper.cpp CLI
-   sudo pacman -S whisper.cpp
+   # Optional: whisper.cpp CLI from AUR
+   yay -S whisper.cpp
    ```
 
 ### Ubuntu / Debian
@@ -51,7 +51,7 @@ Before installing the plugin, ensure you have the necessary recording utilities,
    pipx install openai-whisper
 
    # Optional: faster-whisper-compatible CLI
-   pipx install faster-whisper
+   pipx install whisper-ctranslate2
 
    # Optional: whisper.cpp CLI
    # Install from your distro packages or build from https://github.com/ggerganov/whisper.cpp
@@ -70,7 +70,7 @@ Before installing the plugin, ensure you have the necessary recording utilities,
    pipx install openai-whisper
 
    # Optional: faster-whisper-compatible CLI
-   pipx install faster-whisper
+   pipx install whisper-ctranslate2
 
    # Optional: whisper.cpp CLI
    sudo dnf install whisper.cpp
@@ -139,7 +139,12 @@ Use the DMS plugin settings to change the Whisper backend, model, output directo
 
 The plugin supports three backend choices:
 - `openai-whisper`: default `whisper` command.
-- `faster-whisper`: default `faster-whisper` command. If your package exposes a different CLI name, change it in settings.
+- `faster-whisper`: default `whisper-ctranslate2` command. The `faster-whisper` Python package itself is primarily a library; use a compatible CLI wrapper or change the command in settings.
 - `whisper.cpp`: default `whisper-cli` command, plus a required local model path. If your build exposes `main` or another binary name, change it in settings.
 
 By default, Whisper auto-detects the spoken language. Common model sizes, ordered by precision and weight, are: `tiny`, `base`, `small`, `medium`, `large`.
+
+If transcription fails, check the last backend error at:
+```bash
+cat "${XDG_RUNTIME_DIR:-/tmp}/dms-whisper/last-error.log"
+```

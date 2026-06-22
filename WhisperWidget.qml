@@ -35,7 +35,7 @@ PluginComponent {
         const translate = pluginData.translateToEnglish ? "yes" : "no";
         const initialPrompt = pluginData.initialPrompt || "";
         const openaiCommand = pluginData.openaiWhisperCommand || "whisper";
-        const fasterCommand = pluginData.fasterWhisperCommand || "faster-whisper";
+        const fasterCommand = pluginData.fasterWhisperCommand || "whisper-ctranslate2";
         const whisperCppCommand = pluginData.whisperCppCommand || "whisper-cli";
         const whisperCppModelPath = pluginData.whisperCppModelPath || "";
 

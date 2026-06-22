@@ -3,6 +3,7 @@
 RUNTIME_DIR="${XDG_RUNTIME_DIR:-/tmp}/dms-whisper"
 PID_FILE="$RUNTIME_DIR/record.pid"
 CURRENT_FILE_TRACKER="$RUNTIME_DIR/current.env"
+LOG_FILE="$RUNTIME_DIR/last-error.log"
 
 ACTION="$1"
 BACKEND="${2:-openai-whisper}"
@@ -12,7 +13,7 @@ LANGUAGE="${5:-auto}"
 TRANSLATE="${6:-no}"
 INITIAL_PROMPT="${7:-}"
 OPENAI_WHISPER_COMMAND="${8:-whisper}"
-FASTER_WHISPER_COMMAND="${9:-faster-whisper}"
+FASTER_WHISPER_COMMAND="${9:-whisper-ctranslate2}"
 WHISPER_CPP_COMMAND="${10:-whisper-cli}"
 WHISPER_CPP_MODEL_PATH="${11:-}"
 
@@ -27,6 +28,27 @@ require_command() {
         notify "Whisper" "Missing dependency: $1" -i dialog-error
         exit 1
     fi
+}
+
+require_backend_command() {
+    if ! command -v "$1" >/dev/null 2>&1; then
+        notify "Whisper" "Missing backend command: $1" -i dialog-error
+        return 1
+    fi
+}
+
+resolve_faster_whisper_command() {
+    if command -v "$FASTER_WHISPER_COMMAND" >/dev/null 2>&1; then
+        return 0
+    fi
+
+    if [ "$FASTER_WHISPER_COMMAND" = "faster-whisper" ] && command -v whisper-ctranslate2 >/dev/null 2>&1; then
+        FASTER_WHISPER_COMMAND="whisper-ctranslate2"
+        return 0
+    fi
+
+    notify "Whisper" "Missing faster-whisper CLI. Install whisper-ctranslate2 or set the command in settings." -i dialog-error
+    return 1
 }
 
 is_recording() {
@@ -61,19 +83,19 @@ build_transcription_command() {
 
     case "$BACKEND" in
         openai-whisper)
-            require_command "$OPENAI_WHISPER_COMMAND"
+            require_backend_command "$OPENAI_WHISPER_COMMAND" || return 1
             cmd=("$OPENAI_WHISPER_COMMAND" "$AUDIO_FILE" --model "$MODEL" --output_format txt --output_dir "$OUT_DIR")
             append_common_cli_options
             TXT_FILE="$OUT_DIR/$BASE_NAME.txt"
             ;;
         faster-whisper)
-            require_command "$FASTER_WHISPER_COMMAND"
+            resolve_faster_whisper_command || return 1
             cmd=("$FASTER_WHISPER_COMMAND" "$AUDIO_FILE" --model "$MODEL" --output_format txt --output_dir "$OUT_DIR")
             append_common_cli_options
             TXT_FILE="$OUT_DIR/$BASE_NAME.txt"
             ;;
         whisper-cpp)
-            require_command "$WHISPER_CPP_COMMAND"
+            require_backend_command "$WHISPER_CPP_COMMAND" || return 1
 
             if [ -z "$WHISPER_CPP_MODEL_PATH" ]; then
                 notify "Whisper" "whisper.cpp model path is required." -i dialog-error
@@ -198,8 +220,8 @@ stop_recording() {
     fi
 
     # Run whisper
-    if ! "${cmd[@]}" >/dev/null 2>&1; then
-        notify "Whisper" "Transcription failed." -i dialog-error
+    if ! "${cmd[@]}" >"$LOG_FILE" 2>&1; then
+        notify "Whisper" "Transcription failed. See $LOG_FILE" -i dialog-error
         return 1
     fi
 

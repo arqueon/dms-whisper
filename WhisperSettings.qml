@@ -104,9 +104,9 @@ PluginSettings {
 
     StringSetting {
         settingKey: "fasterWhisperCommand"
-        label: "faster-whisper Command"
-        description: "Command used by the faster-whisper backend."
-        defaultValue: pluginData.fasterWhisperCommand || "faster-whisper"
+        label: "Faster Whisper Command"
+        description: "Command used by the faster-whisper-compatible backend, usually whisper-ctranslate2."
+        defaultValue: pluginData.fasterWhisperCommand || "whisper-ctranslate2"
     }
 
     StringSetting {
