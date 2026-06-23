@@ -105,7 +105,7 @@ PluginSettings {
     StringSetting {
         settingKey: "fasterWhisperCommand"
         label: "Faster Whisper Command"
-        description: "Command used by the faster-whisper-compatible backend, usually whisper-ctranslate2."
+        description: "Optional CLI command, usually whisper-ctranslate2. If missing, the plugin falls back to the faster_whisper Python package."
         defaultValue: pluginData.fasterWhisperCommand || "whisper-ctranslate2"
     }
 

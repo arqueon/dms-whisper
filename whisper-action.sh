@@ -4,6 +4,7 @@ RUNTIME_DIR="${XDG_RUNTIME_DIR:-/tmp}/dms-whisper"
 PID_FILE="$RUNTIME_DIR/record.pid"
 CURRENT_FILE_TRACKER="$RUNTIME_DIR/current.env"
 LOG_FILE="$RUNTIME_DIR/last-error.log"
+FASTER_WHISPER_MODE="cli"
 
 ACTION="$1"
 BACKEND="${2:-openai-whisper}"
@@ -39,16 +40,52 @@ require_backend_command() {
 
 resolve_faster_whisper_command() {
     if command -v "$FASTER_WHISPER_COMMAND" >/dev/null 2>&1; then
+        FASTER_WHISPER_MODE="cli"
         return 0
     fi
 
     if [ "$FASTER_WHISPER_COMMAND" = "faster-whisper" ] && command -v whisper-ctranslate2 >/dev/null 2>&1; then
         FASTER_WHISPER_COMMAND="whisper-ctranslate2"
+        FASTER_WHISPER_MODE="cli"
         return 0
     fi
 
-    notify "Whisper" "Missing faster-whisper CLI. Install whisper-ctranslate2 or set the command in settings." -i dialog-error
+    if python3 -c "import faster_whisper" >/dev/null 2>&1; then
+        FASTER_WHISPER_MODE="python"
+        return 0
+    fi
+
+    notify "Whisper" "Missing faster-whisper backend. Install whisper-ctranslate2 or the faster-whisper Python package." -i dialog-error
     return 1
+}
+
+transcribe_with_faster_whisper_python() {
+    python3 - "$AUDIO_FILE" "$MODEL" "$OUT_DIR" "$BASE_NAME" "$LANGUAGE" "$TRANSLATE" "$INITIAL_PROMPT" <<'PY'
+import sys
+from pathlib import Path
+
+from faster_whisper import WhisperModel
+
+audio_file, model_name, out_dir, base_name, language, translate, initial_prompt = sys.argv[1:]
+
+options = {}
+if language != "auto":
+    options["language"] = language
+if translate == "yes":
+    options["task"] = "translate"
+if initial_prompt:
+    options["initial_prompt"] = initial_prompt
+
+model = WhisperModel(model_name, device="auto", compute_type="default")
+segments, _ = model.transcribe(audio_file, **options)
+
+out_path = Path(out_dir) / f"{base_name}.txt"
+with out_path.open("w", encoding="utf-8") as handle:
+    for segment in segments:
+        text = segment.text.strip()
+        if text:
+            handle.write(text + "\n")
+PY
 }
 
 is_recording() {
@@ -90,8 +127,12 @@ build_transcription_command() {
             ;;
         faster-whisper)
             resolve_faster_whisper_command || return 1
-            cmd=("$FASTER_WHISPER_COMMAND" "$AUDIO_FILE" --model "$MODEL" --output_format txt --output_dir "$OUT_DIR")
-            append_common_cli_options
+            if [ "$FASTER_WHISPER_MODE" = "cli" ]; then
+                cmd=("$FASTER_WHISPER_COMMAND" "$AUDIO_FILE" --model "$MODEL" --output_format txt --output_dir "$OUT_DIR")
+                append_common_cli_options
+            else
+                cmd=(transcribe_with_faster_whisper_python)
+            fi
             TXT_FILE="$OUT_DIR/$BASE_NAME.txt"
             ;;
         whisper-cpp)

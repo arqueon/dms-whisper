@@ -30,7 +30,10 @@ Before installing the plugin, ensure you have the necessary recording utilities,
    sudo pacman -S python-pipx
    pipx install openai-whisper
 
-   # Optional: faster-whisper-compatible CLI
+   # faster-whisper Python backend used by the plugin fallback
+   sudo pacman -S python-faster-whisper
+
+   # Optional: faster-whisper-compatible CLI wrapper
    pipx install whisper-ctranslate2
 
    # Optional: whisper.cpp CLI (GPU-accelerated via Vulkan, works on any GPU)
@@ -53,8 +56,11 @@ Before installing the plugin, ensure you have the necessary recording utilities,
    # OpenAI Whisper CLI
    pipx install openai-whisper
 
-   # Optional: faster-whisper-compatible CLI
+   # Recommended faster-whisper-compatible CLI wrapper
    pipx install whisper-ctranslate2
+
+   # Alternative Python fallback if your distribution allows user installs
+   python3 -m pip install --user faster-whisper
 
    # Optional: whisper.cpp CLI
    # Install from your distro packages or build from https://github.com/ggerganov/whisper.cpp
@@ -72,14 +78,35 @@ Before installing the plugin, ensure you have the necessary recording utilities,
    # OpenAI Whisper CLI
    pipx install openai-whisper
 
-   # Optional: faster-whisper-compatible CLI
+   # Recommended faster-whisper-compatible CLI wrapper
    pipx install whisper-ctranslate2
+
+   # Alternative Python fallback if your distribution allows user installs
+   python3 -m pip install --user faster-whisper
 
    # Optional: whisper.cpp CLI
    sudo dnf install whisper.cpp
    ```
 
-*(Note: `alsa-utils` provides the `arecord` tool, `wl-clipboard` provides `wl-copy`, and `ffmpeg` is required by the `openai-whisper` and `whisper-ctranslate2` backends to decode the recorded audio. Make sure `~/.local/bin` is in your `$PATH` environment variable so CLI backends installed via pipx are recognized. For `whisper.cpp`, set the command and model path in plugin settings.)*
+*(Note: `alsa-utils` provides the `arecord` tool, `wl-clipboard` provides `wl-copy`, and `ffmpeg` is required by the `openai-whisper` and `whisper-ctranslate2` backends to decode the recorded audio. Make sure `~/.local/bin` is in your `$PATH` environment variable so CLI backends installed via pipx are recognized. For the Python fallback, `python3 -c "import faster_whisper"` must work in the shell environment that launches DMS. For `whisper.cpp`, set the command and model path in plugin settings.)*
+
+### Verify the backend installation
+
+Run the checks for the backend you plan to use:
+
+```bash
+# OpenAI Whisper backend
+command -v whisper
+
+# faster-whisper CLI backend, optional
+command -v whisper-ctranslate2
+
+# faster-whisper Python fallback
+python3 -c "import faster_whisper; print(faster_whisper.__version__)"
+
+# whisper.cpp backend, optional
+command -v whisper-cli
+```
 
 ---
 
@@ -142,7 +169,7 @@ Use the DMS plugin settings to change the Whisper backend, model, output directo
 
 The plugin supports three backend choices:
 - `openai-whisper`: default `whisper` command.
-- `faster-whisper`: default `whisper-ctranslate2` command. The `faster-whisper` Python package itself is primarily a library; use a compatible CLI wrapper or change the command in settings.
+- `faster-whisper`: default `whisper-ctranslate2` command. If that CLI is not available, the plugin falls back to the installed `faster_whisper` Python package.
 - `whisper.cpp`: default `whisper-cli` command, plus a required local model path. If your build exposes `main` or another binary name, change it in settings.
 
 By default, Whisper auto-detects the spoken language. Common model sizes, ordered by precision and weight, are: `tiny`, `base`, `small`, `medium`, `large`.
