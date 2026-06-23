@@ -11,3 +11,4 @@
 - Documentada la dependencia `ffmpeg` (necesaria por los backends `openai-whisper` y `whisper-ctranslate2` para decodificar el audio) en las tres distros del README.
 - README de Arch ahora recomienda `pacman -S whisper-cpp-vulkan` (binario prebuilt en repos CachyOS, acelerado por Vulkan) en vez de compilar `yay -S whisper.cpp`.
 - Descargado modelo `ggml-base.bin` en `~/.local/share/whisper.cpp/` para el backend whisper.cpp.
+- Corregido whisper.cpp: ahora pasa `-l "$LANGUAGE"` siempre (incluido `auto`), porque whisper.cpp asume inglés si se omite `-l`; el audio en español ya no se fuerza a inglés.

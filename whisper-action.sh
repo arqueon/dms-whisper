@@ -110,9 +110,9 @@ build_transcription_command() {
             output_prefix="$OUT_DIR/$BASE_NAME"
             cmd=("$WHISPER_CPP_COMMAND" -m "$WHISPER_CPP_MODEL_PATH" -f "$AUDIO_FILE" -otxt -of "$output_prefix")
 
-            if [ "$LANGUAGE" != "auto" ]; then
-                cmd+=(-l "$LANGUAGE")
-            fi
+            # whisper.cpp defaults to English when -l is omitted, so always pass
+            # the language explicitly ("auto" triggers its own auto-detection).
+            cmd+=(-l "$LANGUAGE")
 
             if [ "$TRANSLATE" = "yes" ]; then
                 cmd+=(-tr)
