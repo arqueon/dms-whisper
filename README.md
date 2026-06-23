@@ -21,7 +21,7 @@ Before installing the plugin, ensure you have the necessary recording utilities,
 
 1. **Install system utilities:**
    ```bash
-   sudo pacman -S alsa-utils wl-clipboard
+   sudo pacman -S alsa-utils wl-clipboard ffmpeg
    ```
 
 2. **Install a Whisper backend:**
@@ -33,8 +33,11 @@ Before installing the plugin, ensure you have the necessary recording utilities,
    # Optional: faster-whisper-compatible CLI
    pipx install whisper-ctranslate2
 
-   # Optional: whisper.cpp CLI from AUR
-   yay -S whisper.cpp
+   # Optional: whisper.cpp CLI (GPU-accelerated via Vulkan, works on any GPU)
+   # CachyOS ships a prebuilt binary in its repos:
+   sudo pacman -S whisper-cpp-vulkan
+   # On plain Arch without those repos, build from the AUR instead:
+   # yay -S whisper.cpp
    ```
 
 ### Ubuntu / Debian
@@ -42,7 +45,7 @@ Before installing the plugin, ensure you have the necessary recording utilities,
 1. **Install system utilities and pipx:**
    ```bash
    sudo apt update
-   sudo apt install alsa-utils wl-clipboard pipx
+   sudo apt install alsa-utils wl-clipboard ffmpeg pipx
    ```
 
 2. **Install a Whisper backend:**
@@ -61,7 +64,7 @@ Before installing the plugin, ensure you have the necessary recording utilities,
 
 1. **Install system utilities and pipx:**
    ```bash
-   sudo dnf install alsa-utils wl-clipboard pipx
+   sudo dnf install alsa-utils wl-clipboard ffmpeg pipx
    ```
 
 2. **Install a Whisper backend:**
@@ -76,7 +79,7 @@ Before installing the plugin, ensure you have the necessary recording utilities,
    sudo dnf install whisper.cpp
    ```
 
-*(Note: `alsa-utils` provides the `arecord` tool, and `wl-clipboard` provides `wl-copy`. Make sure `~/.local/bin` is in your `$PATH` environment variable so CLI backends installed via pipx are recognized. For `whisper.cpp`, set the command and model path in plugin settings.)*
+*(Note: `alsa-utils` provides the `arecord` tool, `wl-clipboard` provides `wl-copy`, and `ffmpeg` is required by the `openai-whisper` and `whisper-ctranslate2` backends to decode the recorded audio. Make sure `~/.local/bin` is in your `$PATH` environment variable so CLI backends installed via pipx are recognized. For `whisper.cpp`, set the command and model path in plugin settings.)*
 
 ---
 
