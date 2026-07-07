@@ -1,5 +1,8 @@
 # Dank Material Shell (DMS) Whisper Plugin
 
+> ⚠️ **Deprecated / retired** — this plugin is no longer maintained. Use
+> [Whisperer](https://github.com/dwright134/dms-whisperer) instead. The archived code here still works.
+
 A [Dank Material Shell](https://github.com/AvengeMedia/DankMaterialShell) plugin that brings the power of **Whisper** AI transcription directly to your status bar.
 
 Record voice notes with a single click (or via IPC keybinds), have them transcribed in the background using Whisper, copied automatically to your clipboard, and cleanly backed up locally (both the audio and the generated text).
